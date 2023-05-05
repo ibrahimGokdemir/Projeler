@@ -1,0 +1,73 @@
+// ---Code.gs---
+
+function doGet() {
+  var template = HtmlService.createTemplateFromFile('Page');
+  return template.evaluate();
+}
+
+function getData() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Liste");
+  var data = sheet.getDataRange().getValues();
+  return data;
+}
+
+function sendMail(numara) {
+  var data = getData();
+  var mailAdresi = "";
+  var link = "";
+  for (var i = 0; i < data.length; i++) {
+    if (data[i][0] == numara) {
+      mailAdresi = data[i][3];
+      link = data[i][7];
+      isim = data[i][2];
+      break;
+    }
+  }
+  var subject = "Link";
+  var body = "Merhaba "+isim+", belgenize aşağıdaki linkten ulaşabilirsiniz.\n\n" + link;
+  MailApp.sendEmail(mailAdresi, subject, body);
+}
+
+
+
+
+//---Page.html---
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      input[type=button], input[type=submit], input[type=reset] {
+        
+        background-color: #4CAF50;
+        border: black;
+        color: white;
+        padding: 16px 32px;
+        text-decoration: none;
+        margin: 4px 2px;
+        cursor: pointer;
+      }
+
+      input[type=text]:focus {
+        border: 3px solid #555;
+      }
+
+      
+
+    </style>
+  </head>
+  <body>
+    <form>
+      <label for="numara">Numara:</label>
+      <input type="text" id="numara" name="numara"><br><br>
+      <input type="button" value="Gönder" onclick="submitForm()">
+    </form>
+    <script>
+      function submitForm() {
+        var numara = document.getElementById("numara").value;
+        google.script.run.sendMail(numara);
+      }
+    </script>
+  </body>
+</html>
